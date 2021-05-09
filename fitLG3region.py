@@ -19,6 +19,8 @@ rmode = 2
 #   1 = get total death data
 #   2 = get total confirmed cases data
 dmode = 1
+# accuracy target
+target = 500.0
 ##### end input   #########
 
 import matplotlib.pyplot as plt
@@ -53,12 +55,13 @@ def LG3_daily(x,a,b,c,d,e,f,g,h,i,j,k,l):
 
 def fitLG3(x,y):    
     # fit the data with 3 lognormal curves
-    #p0 = [100,100,100,100,100,100,100,100,100,100,100,100]
-    #p0 = [1,1,1,1,1,1,1,1,1,1,1,1]
-    p0 = [148342., 0.719, 56.8, 47.8, 125367., 0.868, 153., 100.2, 999999., 0.159, 3.676e-06, 418.9]
-    #p0 = [100000.,1.,100.,1000.,100000.,0.1,0.01,100.,100000.,0.1,100.,100.]
-    bounds = (0,[1.0e6,1.0e2,1.0e6,1.0e6,1.0e6,1.0e6,1.0e6,1.0e6,1.0e6,1.0e6,1.0e6,1.0e6])
-    (a,b,c,d,e,f,g,h,i,j,k,l),pcov = optim.curve_fit(LG3_total,x,y,p0=p0,bounds=bounds,maxfev=5000)
+    p0 = 100.*np.random.rand(12)
+    #print('p0=',p0)
+    tmp = 1.0e6*np.random.rand(12)
+    bounds = (0,tmp)
+    #bounds = (0,[1.0e6,1.0e2,1.0e6,1.0e6,1.0e6,1.0e6,1.0e6,1.0e6,1.0e6,1.0e6,1.0e6,1.0e6])
+    (a,b,c,d,e,f,g,h,i,j,k,l),pcov = \
+        optim.curve_fit(LG3_total,x,y,p0=p0,bounds=bounds,maxfev=5000)
     perr = np.sqrt(np.diag(pcov))
     return a,b,c,d,e,f,g,h,i,j,k,l,perr
 
@@ -80,11 +83,19 @@ def m_fmt(x, pos=None):
 
 # int index from 1 to end of prediction
 xp = np.arange(1,len(xdates_pred)+1,1)
-print(len(xdates_pred),len(xp))
+#print(len(xdates_pred),len(xp))
 
-# fit the observed data
-a,b,c,d,e,f,g,h,i,j,k,l,perr = fitLG3(x,y)
-print(a,b,c,d,e,f,g,h,i,j,k,l)
+# fit the observed data with prescribed accuracy
+error = 1.0e7
+iter = 1
+while error>target:
+    a,b,c,d,e,f,g,h,i,j,k,l,perr = fitLG3(x,y)
+    #print(a,b,c,d,e,f,g,h,i,j,k,l)
+    error = perr[0]
+    if error==0.0:   # degenerate fit, keep going
+        error = 1.0e7
+    print('searching: iter=',iter, ' goal=',target, ' accuracy=',int(error))
+    iter += 1
 
 # predict in data range and beyond
 y2t = LG3_total(xp,a,b,c,d,e,f,g,h,i,j,k,l)
@@ -93,15 +104,9 @@ y2d = LG3_daily(xp,a,b,c,d,e,f,g,h,i,j,k,l)
 # make figure
 fig, (ax1,ax2) = plt.subplots(2,1,figsize=(10,8))
 # plot of total data and fit
-if freeze == 0:
-    ax1.plot(xdates_pred,y2t,c='r',label='model fit')
-if freeze == 1:
-    ax1.plot(xdates_pred,y2t,c='r',label='19 dec model fit')
+ax1.plot(xdates_pred,y2t,c='r',label='model fit')
 ax1.scatter(xdates_data,y,s=15,alpha=0.5,label='data')
-if freeze == 0:
-    ax1.axvline(xdates_pred[345],linestyle="--",linewidth=2,color='gray')
-if freeze == 1:
-    ax1.axvline(xdates_pred[331],linestyle="--",linewidth=1,color='gray',label='19 dec 2020')
+ax1.axvline(xdates_pred[345],linestyle="--",linewidth=2,color='gray')
 ax1.set_title(region + ' Covid-19 Deaths: Total')
 ax1.xaxis.set_major_locator(MonthLocator())
 ax1.xaxis.set_major_formatter(FuncFormatter(m_fmt))
@@ -112,15 +117,9 @@ ax1.text(0.98,0.05,'\ncliner '+datetime.now().strftime('%d %b %Y'), \
           transform = ax1.transAxes)
 ax1.legend(loc='upper left')
 # plot of daily data and fit
-if freeze == 0:
-    ax2.plot(xdates_pred,y2d,c='r',label='model fit')
-if freeze == 1:
-    ax2.plot(xdates_pred,y2d,c='r',label='19 dec model fit')
+ax2.plot(xdates_pred,y2d,c='r',label='model fit')
 ax2.scatter(xdates_data[:-1],yd,s=15,alpha=0.5,label='data')
-if freeze == 0:
-    ax2.axvline(xdates_pred[345],linestyle="--",linewidth=2,color='gray')
-if freeze == 1:
-    ax2.axvline(xdates_pred[331],linestyle="--",linewidth=1,color='gray',label='19 dec 2020')
+ax2.axvline(xdates_pred[345],linestyle="--",linewidth=2,color='gray')
 ax2.set_title(region + ' Covid-19 Deaths: Daily')
 ax2.xaxis.set_major_locator(MonthLocator())
 ax2.xaxis.set_major_formatter(FuncFormatter(m_fmt))
