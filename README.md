@@ -1,7 +1,7 @@
 # fit_Covid_LG3
 Region fit of Johns Hopkins Covid-19 data using three lognormal functions. This code is open for public use.
 
-Python3 code with several standard library includes. Assumes *c19subs.py* is in the same directory. The code is a bit sensitive. The fit is across a 12-dimensional parameter space and a good starting point (p0) and set of parameter bounds are essential. The bounds and p0 are generated randomly for each iteration. The core routine is scipy.optomize set with maxfev=5000, but if p0 or bounds are pathelogical, optomize may run to full 5000 function evals without convergence and code will terminate with error. Rare event, just run it again and hope for the best.
+Python3 code with several standard library includes. Assumes *c19subs.py* is in the same directory. The code is a bit sensitive. The fit is across a 12-dimensional parameter space and a good starting point (p0) and set of parameter bounds are essential. The bounds and p0 are generated randomly for each iteration. The core routine is scipy.optomize set with maxfev=5000, but if p0 or bounds are pathelogical optomize may run to full 5000 function evals without convergence and code will terminate with error. Rare event, just run it again and hope for the best.
 
 The user needs to supply an accuracy goal, this is set to target=500 which seems suitable for India as of 9 May 2021. 
 
