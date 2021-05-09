@@ -9,17 +9,15 @@ python fitLG3region.py
 ```
 With result:
 ```
-searching: iter= 1  goal= 500.0  accuracy= 342751
+searching: iter= 1  goal= 500.0  accuracy= 50600
 searching: iter= 2  goal= 500.0  accuracy= 10000000
-searching: iter= 3  goal= 500.0  accuracy= 10000000
-searching: iter= 4  goal= 500.0  accuracy= 12435
-searching: iter= 5  goal= 500.0  accuracy= 55478
+searching: iter= 3  goal= 500.0  accuracy= 90499345
 .
 .
 .
-searching: iter= 83  goal= 500.0  accuracy= 10000000
-searching: iter= 84  goal= 500.0  accuracy= 259789
-searching: iter= 85  goal= 500.0  accuracy= 461
+searching: iter= 34  goal= 500.0  accuracy= 120131516
+searching: iter= 35  goal= 500.0  accuracy= 357248
+searching: iter= 36  goal= 500.0  accuracy= 463
 ```
 That generated this fit in the file *LG3_May09_India.pdf*
 
